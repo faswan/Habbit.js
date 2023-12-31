@@ -48,7 +48,9 @@ let habbits = [
 		"target": 10
 	}
 ]
+
 const HABBIT_KEY = 'HABBIT_KEY'
+let globalActiveHabbitId = 1
 
 const page = {
 	menu: document.querySelector('.menu__list'),
@@ -94,7 +96,8 @@ function rerenderMenu(activeHabbit) {
 			existed.classList.add('menu__item_active')
 		} else existed.classList.remove('menu__item_active')
 	}
-
+	localStorage.setItem('active', globalActiveHabbitId)
+	document.querySelector('.comment__text').classList.remove('error')
 }
 
 function rerenderHead(activeHabbit) {
@@ -117,21 +120,62 @@ function rerenderContent(activeHabbit) {
 			<div class="tasks__info_text">
 				${activeHabbit.days[index].comment}
 			</div>
-		<img class="delete" src="./img/delete.svg" alt="удалить" />
+		<img 
+			class="delete" 
+			src="./img/delete.svg" 
+			alt="удалить" 
+			onclick="deleteTask(${index})"
+		/>
 		</div>
 		`
 		page.content.daysContainer.append(element)
+
 	}
 	page.content.nextDay.textContent = `День ${activeHabbit.days.length + 1}`
+
 }
 
 function addDays(e) {
 	e.preventDefault()
-	const data = new FormData(e.target)
-	console.log(data.get('comment'))
+	const form = e.target
+	const data = new FormData(form)
+	const comment = data.get('comment')
+	form['comment'].classList.remove('error')
+	if (!comment) {
+		form['comment'].classList.add('error')
+		return
+	}
+	habbits = habbits.map(habbit => {
+		if (habbit.id === globalActiveHabbitId) {
+			return {
+				...habbit,
+				days: habbit.days.concat([{ comment }])
+			}
+		}
+		return habbit
+	})
+	form['comment'].value = ''
+	rerender(globalActiveHabbitId)
+	saveData()
+}
+
+function deleteTask(index) {
+	habbits = habbits.map(habbit => {
+		if (habbit.id === globalActiveHabbitId) {
+			habbit.days.splice(index, 1)
+			return {
+				...habbit,
+				days: habbit.days
+			}
+		}
+		return habbit
+	})
+	rerender(globalActiveHabbitId)
+	saveData()
 }
 
 function rerender(activeHabbitId) {
+	globalActiveHabbitId = activeHabbitId
 	const activeHabbit = habbits.find(habbit => habbit.id === activeHabbitId)
 	if (!activeHabbit) {
 		return
@@ -142,7 +186,6 @@ function rerender(activeHabbitId) {
 }
 
 (() => {
-	saveData()
 	loadData()
-	rerender(habbits[0].id)
+	rerender(localStorage.getItem('active') ? Number(localStorage.getItem('active')) : 1)
 })()

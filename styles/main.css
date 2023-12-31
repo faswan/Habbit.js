@@ -241,3 +241,7 @@ h1 {
 .done:hover {
 	background: #e2e1fc;
 }
+
+.error {
+	border: 1px solid red;
+}
