@@ -174,6 +174,21 @@ function deleteTask(index) {
 	saveData()
 }
 
+function togglePopup() {
+	const cover = document.querySelector('.cover')
+	if (cover.classList.contains('cover_hidden')) {
+		cover.classList.remove('cover_hidden')
+	} else cover.classList.add('cover_hidden')
+}
+
+function setIcon(context, icon) {
+	const inputIcon = document.getElementById('setIcon')
+	inputIcon.value = icon
+	const activeIcon = document.querySelector('.active__select_image')
+	activeIcon.classList.remove('active__select_image')
+	context.classList.add('active__select_image')
+}
+
 function rerender(activeHabbitId) {
 	globalActiveHabbitId = activeHabbitId
 	const activeHabbit = habbits.find(habbit => habbit.id === activeHabbitId)
