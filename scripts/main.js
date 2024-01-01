@@ -137,24 +137,20 @@ function rerenderContent(activeHabbit) {
 
 function addDays(e) {
 	e.preventDefault()
-	const form = e.target
-	const data = new FormData(form)
-	const comment = data.get('comment')
-	form['comment'].classList.remove('error')
-	if (!comment) {
-		form['comment'].classList.add('error')
+	const data = validationAndGetDataForm(e.target, ['comment'])
+	if (!data) {
 		return
 	}
 	habbits = habbits.map(habbit => {
 		if (habbit.id === globalActiveHabbitId) {
 			return {
 				...habbit,
-				days: habbit.days.concat([{ comment }])
+				days: habbit.days.concat([{ comment: data.comment }])
 			}
 		}
 		return habbit
 	})
-	form['comment'].value = ''
+	resetForm(e.target, ['comment'])
 	rerender(globalActiveHabbitId)
 	saveData()
 }
@@ -188,6 +184,63 @@ function setIcon(context, icon) {
 	activeIcon.classList.remove('active__select_image')
 	context.classList.add('active__select_image')
 }
+
+function addHabbit(e) {
+	e.preventDefault()
+	const data = validationAndGetDataForm(e.target, ['name', 'icon', 'target'])
+	if (!data) {
+		return
+	}
+	const maxId = habbits.reduce((acc, habbit) => acc > habbit.id ? acc : habbit.id , 0)
+	habbits.push({
+		id: maxId + 1,
+		header: data.name,
+		target: data.target,
+		icon: data.icon,
+		days: []
+	})
+
+	saveData()
+	togglePopup()
+	resetForm(e.target, ['name', 'target'])
+	rerender(maxId + 1)
+}
+
+function resetForm(form, fields) {
+	for (const field of fields) {
+		form[field].value = '' 
+	}
+}
+
+function validationAndGetDataForm(form, fields) {
+	const formData = new FormData(form)
+	let res = {}
+	for (const field of fields) {
+		const fieldValue = formData.get(field)
+		form[field].classList.remove('error')
+		if (!fieldValue) {
+			form[field].classList.add('error')
+		}
+		res[field] = fieldValue
+	}
+	let isValid = true
+	for (const field of fields) {
+		if (!res[field]) {
+			isValid = false
+		}
+	}
+	if (!isValid) {
+		return
+	}
+	return res
+}
+
+// function deleteHabbit() {
+// 	habbits = habbits.filter(habbit => habbit.id !== globalActiveHabbitId)
+// 	saveData()
+// 	rerender(1)
+// }    
+
 
 function rerender(activeHabbitId) {
 	globalActiveHabbitId = activeHabbitId
