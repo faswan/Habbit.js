@@ -1,1 +1,1 @@
-[Добавление задач и их выполнение на чистом JS](https://faswan.github.io/Habbit_basic_js/)
+[Live](https://faswan.github.io/Habbit.js/) Простой органайзер на чистом js.
